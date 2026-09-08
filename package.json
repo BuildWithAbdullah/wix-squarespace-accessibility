@@ -8,6 +8,6 @@
     "test": "node test/kit.test.mjs"
   },
   "devDependencies": {
-    "puppeteer": "^23.0.0"
+    "puppeteer": "^25.10.0"
   }
 }
