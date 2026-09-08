@@ -1,0 +1,13 @@
+{
+  "name": "wix-squarespace-accessibility",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Platform-specific accessibility workarounds for Wix and Squarespace.",
+  "type": "module",
+  "scripts": {
+    "test": "node test/kit.test.mjs"
+  },
+  "devDependencies": {
+    "puppeteer": "^23.0.0"
+  }
+}

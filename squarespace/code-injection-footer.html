@@ -1,0 +1,177 @@
+<!--
+  Squarespace: Settings > Advanced > Code Injection > FOOTER
+
+  Scripts belong in the footer so the DOM exists when they run. Pair with
+  code-injection-header.html, which supplies the styles these rules rely on.
+
+  Squarespace uses AJAX page transitions on many templates, so a one-shot
+  script will not run on the next page. The injection kit observes the DOM and
+  re-applies safely.
+
+  You may prefer to paste shared/a11y-injection-kit.js inline rather than load
+  it from a CDN. Inline removes a third-party dependency and a request; the CDN
+  keeps the injection block short. Either is fine.
+-->
+
+<script src="https://cdn.jsdelivr.net/gh/BuildWithAbdullah/wix-squarespace-accessibility@main/shared/a11y-injection-kit.js"></script>
+<script>
+(function () {
+  'use strict';
+  if (!window.A11yKit) return;
+
+  var FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]),' +
+                  'select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+  A11yKit
+    /* 1. Skip link, WCAG 2.4.1.
+       Squarespace does not emit one. The target must be focusable or several
+       browsers scroll without moving focus, which makes the link appear to
+       work while achieving nothing. */
+    .rule('skip-link', function (root, mark) {
+      if (document.querySelector('.a11y-skip-link')) return;
+
+      var main = document.querySelector('main, #page, [role="main"]');
+      if (!main) return;
+
+      if (!main.id) main.id = 'a11y-main';
+      if (!main.hasAttribute('tabindex')) main.setAttribute('tabindex', '-1');
+
+      var link = document.createElement('a');
+      link.className = 'a11y-skip-link';
+      link.href = '#' + main.id;
+      link.textContent = 'Skip to main content';
+      document.body.insertBefore(link, document.body.firstChild);
+      mark(link);
+    })
+
+    /* 2. Mobile overlay navigation, WCAG 2.1.2.
+       The most reliable finding on any Squarespace site. The menu opens as a
+       full-screen overlay, focus is never moved into it, the page behind stays
+       tabbable, and Escape does nothing.
+
+       No scanner reports this. There is nothing in the DOM that distinguishes
+       an overlay which manages focus from one which does not. */
+    .rule('mobile-nav-focus', function (root, mark) {
+      var toggle = document.querySelector(
+        '.header-burger-btn, .Mobile-bar-menu, [data-test="header-burger"], .burger'
+      );
+      var overlay = document.querySelector(
+        '.header-menu, .Mobile-overlay, .header-menu-nav'
+      );
+      if (!toggle || !overlay) return;
+      if (mark(toggle)) return;
+
+      var lastOpen = false;
+
+      function isOpen() {
+        return document.body.classList.contains('header--menu-open') ||
+               document.documentElement.classList.contains('Mobile-overlay--active') ||
+               overlay.getAttribute('aria-hidden') === 'false' ||
+               toggle.getAttribute('aria-expanded') === 'true';
+      }
+
+      function onKeydown(e) {
+        if (e.key === 'Escape') { toggle.click(); toggle.focus(); return; }
+        if (e.key !== 'Tab') return;
+
+        var items = Array.prototype.filter.call(
+          overlay.querySelectorAll(FOCUSABLE),
+          function (el) { return el.offsetParent !== null; }
+        );
+        if (!items.length) return;
+
+        var first = items[0], last = items[items.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+
+      /* The overlay is opened by the template's own script, so its state is
+         watched rather than intercepted. Intercepting the click would mean
+         reimplementing the open and close animation. */
+      setInterval(function () {
+        var open = isOpen();
+        if (open === lastOpen) return;
+        lastOpen = open;
+
+        if (open) {
+          var items = overlay.querySelectorAll(FOCUSABLE);
+          if (items.length) items[0].focus();
+          document.addEventListener('keydown', onKeydown);
+        } else {
+          document.removeEventListener('keydown', onKeydown);
+        }
+      }, 250);
+    })
+
+    /* 3. Summary block "Read More" links, WCAG 2.4.4.
+       Every item links with identical text. The visible wording is left alone
+       so the design does not change; hidden text makes each name unique. */
+    .rule('summary-read-more', function (root, mark) {
+      root.querySelectorAll('.summary-read-more-link, .sqs-block-summary-v2 a.summary-title-link')
+        .forEach(function (link) {
+          if (!/^(read more|learn more|continue reading|more)$/i.test(link.textContent.trim())) return;
+          if (mark(link)) return;
+
+          var item = link.closest('.summary-item');
+          var title = item && item.querySelector('.summary-title, .summary-title-link');
+          if (!title) return;
+
+          var span = document.createElement('span');
+          span.className = 'a11y-visually-hidden';
+          span.textContent = ' about ' + title.textContent.trim();
+          link.appendChild(span);
+        });
+    })
+
+    /* 4. Unnamed gallery and lightbox controls, WCAG 4.1.2. */
+    .rule('name-gallery-controls', function (root, mark) {
+      var MAP = [
+        ['.gallery-lightbox-close, .lightbox-close', 'Close image viewer'],
+        ['.gallery-arrow-left, .lightbox-control-previous, [data-controls="previous"]', 'Previous image'],
+        ['.gallery-arrow-right, .lightbox-control-next, [data-controls="next"]', 'Next image']
+      ];
+      MAP.forEach(function (pair) {
+        root.querySelectorAll(pair[0]).forEach(function (el) {
+          if (el.textContent.trim() || el.getAttribute('aria-label')) return;
+          if (mark(el)) return;
+          el.setAttribute('aria-label', pair[1]);
+          /* Non-button elements used as controls also need a role and a tab
+             stop, or they cannot be reached at all. */
+          if (el.tagName !== 'BUTTON' && el.tagName !== 'A') {
+            if (!el.getAttribute('role')) el.setAttribute('role', 'button');
+            if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+          }
+        });
+      });
+    })
+
+    /* 5. Announcement bar close button, WCAG 4.1.2.
+       It is the first thing in the tab order on every page and is commonly
+       unnamed. */
+    .rule('announcement-close', function (root, mark) {
+      root.querySelectorAll('.sqs-announcement-bar-close').forEach(function (el) {
+        if (el.getAttribute('aria-label')) return;
+        if (mark(el)) return;
+        el.setAttribute('aria-label', 'Close announcement');
+        if (el.tagName !== 'BUTTON') {
+          el.setAttribute('role', 'button');
+          if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+        }
+      });
+    })
+
+    /* 6. Name cross-origin iframes so they are not announced as an unlabelled
+       frame. Their contents stay unreachable; nothing on the parent page can
+       modify a cross-origin document. */
+    .rule('name-iframes', function (root, mark) {
+      root.querySelectorAll('iframe:not([title])').forEach(function (f) {
+        if (mark(f)) return;
+        var host = '';
+        try { host = new URL(f.src, location.href).hostname; } catch (e) {}
+        f.setAttribute('title', host ? ('Embedded content from ' + host) : 'Embedded content');
+      });
+    })
+
+    .start();
+})();
+</script>

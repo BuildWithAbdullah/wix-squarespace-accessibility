@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>A11yKit fixture</title></head>
+<body>
+  <main id="content"><h1>Fixture</h1></main>
+
+  <!-- Unnamed: the kit should name this. -->
+  <button id="unnamed"></button>
+
+  <!-- Already named: the kit must leave both of these alone. -->
+  <button id="named-text">Checkout</button>
+  <button id="named-label" aria-label="Existing label"></button>
+
+  <div id="late"></div>
+
+  <script src="../shared/a11y-injection-kit.js"></script>
+  <script>
+    window.__calls = 0;
+
+    A11yKit.rule('name-buttons', function (root, mark) {
+      window.__calls++;
+      root.querySelectorAll('button').forEach(function (el) {
+        // Non-destructive guard: never touch a control that already has a name.
+        if (el.textContent.trim() || el.getAttribute('aria-label')) return;
+        // Idempotency guard.
+        if (mark(el)) return;
+        var span = document.createElement('span');
+        span.className = 'a11y-visually-hidden';
+        span.textContent = 'Named by kit';
+        el.appendChild(span);
+      });
+    }).start();
+
+    // Simulate a platform re-render after first paint.
+    window.__addLate = function () {
+      document.getElementById('late').innerHTML = '<button id="late-btn"></button>';
+    };
+  </script>
+</body>
+</html>
