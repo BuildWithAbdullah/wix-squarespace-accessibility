@@ -1,13 +1,21 @@
 {
   "name": "wix-squarespace-accessibility",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
-  "description": "Platform-specific accessibility workarounds for Wix and Squarespace.",
+  "description": "Tested accessibility repairs for Wix and Squarespace, where the markup cannot be edited.",
+  "license": "MIT",
   "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
-    "test": "node test/kit.test.mjs"
+    "test": "node tools/run-tests.mjs",
+    "test:tap": "node --test --test-reporter=tap test/text.test.mjs test/name.test.mjs test/kit.test.mjs test/pairs.test.mjs test/catalogue.test.mjs test/bundle.test.mjs",
+    "verify": "node tools/verify.mjs",
+    "bundle": "node tools/bundle.mjs",
+    "docs": "node tools/catalogue-doc.mjs && node tools/examples-doc.mjs"
   },
   "devDependencies": {
-    "puppeteer": "^25.10.0"
+    "puppeteer": "^25.12.0"
   }
 }
