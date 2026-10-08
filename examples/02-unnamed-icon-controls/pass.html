@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Named header controls</title>
+  <!--
+    The corrected page. Every control has a name, and the name is supplied
+    the way the platform editor would supply it where that is possible.
+
+    Note that the cart button is named by its own svg title rather than by an
+    aria-label. That is a real naming path and the shared accessible name
+    computation in lib/accessible-name.js honours it, which is the reason
+    this repository has one implementation rather than five inline guesses.
+  -->
+</head>
+<body>
+  <main><h1>Shop</h1></main>
+
+  <header>
+    <button class="header-burger-btn" aria-label="Open menu"></button>
+    <button class="header-search" aria-label="Search"></button>
+    <button class="header-cart">
+      <svg viewBox="0 0 24 24"><title>Cart</title><path d="M3 3h18v18H3z"></path></svg>
+    </button>
+    <button class="header-account" aria-label="Account"></button>
+  </header>
+</body>
+</html>

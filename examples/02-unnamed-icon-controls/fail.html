@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Unnamed header controls</title>
+  <!--
+    What this reproduces.
+
+    The header of almost every site on these platforms: icon only controls
+    rendered as empty buttons with the glyph supplied by CSS or by an inline
+    svg with no title. A screen reader announces each one as "button" and
+    nothing else.
+
+    The fourth control is the interesting one. It carries a correct
+    aria-label and its visible content is empty, so a repair layer that
+    decides "is this named?" by reading textContent will treat it as unnamed
+    and append a second name to it. That control is here to prove the audit
+    and the rule both leave it alone.
+  -->
+</head>
+<body>
+  <main><h1>Shop</h1></main>
+
+  <header>
+    <button class="header-burger-btn" data-testid="header-menu-toggle"></button>
+    <button class="header-search" data-hook="search-open"></button>
+    <button class="header-cart" data-hook="cart-icon">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h18v18H3z"></path></svg>
+    </button>
+
+    <!-- Correctly named already. Nothing may touch this. -->
+    <button class="header-account" aria-label="Account"></button>
+  </header>
+</body>
+</html>
