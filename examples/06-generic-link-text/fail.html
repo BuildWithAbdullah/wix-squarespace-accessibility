@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Summary block with repeated link text</title>
+  <!--
+    What this reproduces.
+
+    A Squarespace summary block, and every blog or product grid built the
+    same way. Each item links with identical text. A screen reader user who
+    pulls up the list of links on the page gets a column of entries that all
+    say "Read More" and no way to tell one from another.
+
+    The criterion is 2.4.4 Link Purpose (In Context), and "in context" is
+    doing real work in that name: sighted users resolve these links from the
+    heading sitting above them. The list of links view throws that context
+    away, which is why the finding is genuine even though the page looks
+    perfectly clear.
+  -->
+</head>
+<body>
+  <main>
+    <h1>Journal</h1>
+
+    <div class="summary-item" data-a11y-summary-item>
+      <h2 class="summary-title">Dyeing with oak galls</h2>
+      <a class="summary-read-more-link" href="/journal/oak-galls">Read More</a>
+    </div>
+
+    <div class="summary-item" data-a11y-summary-item>
+      <h2 class="summary-title">A year of indigo</h2>
+      <a class="summary-read-more-link" href="/journal/indigo">Read More</a>
+    </div>
+
+    <div class="summary-item" data-a11y-summary-item>
+      <h2 class="summary-title">Repairing a warped loom</h2>
+      <a class="summary-read-more-link" href="/journal/loom">Read More</a>
+    </div>
+  </main>
+</body>
+</html>

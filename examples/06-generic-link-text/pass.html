@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Summary block with distinguishable links</title>
+  <!--
+    The corrected page. The visible wording is unchanged, deliberately.
+
+    Rewriting visible copy is a design decision that belongs to the client,
+    and a repair layer that quietly rewrites it will eventually rewrite
+    something it should not have. Hidden text appended inside the link makes
+    each accessible name unique while the page looks exactly as it was built.
+
+    The .a11y-visually-hidden class is the one from the injection styles. It
+    uses clip-path rather than display:none or visibility:hidden, because
+    both of those remove the text from the accessibility tree as well as from
+    the screen, which would leave the names identical again.
+  -->
+  <style>
+    .a11y-visually-hidden {
+      position: absolute !important;
+      width: 1px; height: 1px;
+      margin: -1px; padding: 0;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Journal</h1>
+
+    <div class="summary-item" data-a11y-summary-item>
+      <h2 class="summary-title">Dyeing with oak galls</h2>
+      <a class="summary-read-more-link" href="/journal/oak-galls">Read More<span class="a11y-visually-hidden"> about Dyeing with oak galls</span></a>
+    </div>
+
+    <div class="summary-item" data-a11y-summary-item>
+      <h2 class="summary-title">A year of indigo</h2>
+      <a class="summary-read-more-link" href="/journal/indigo">Read More<span class="a11y-visually-hidden"> about A year of indigo</span></a>
+    </div>
+
+    <div class="summary-item" data-a11y-summary-item>
+      <h2 class="summary-title">Repairing a warped loom</h2>
+      <a class="summary-read-more-link" href="/journal/loom">Read More<span class="a11y-visually-hidden"> about Repairing a warped loom</span></a>
+    </div>
+  </main>
+</body>
+</html>
