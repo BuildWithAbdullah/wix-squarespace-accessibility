@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Filename alt text</title>
+  <!--
+    What this reproduces.
+
+    Both editors prefill the alt field with the uploaded filename, so a
+    gallery announces "D S C underscore zero zero four three dot J P G" where
+    it should say nothing or say something useful.
+
+    The second image is the one that makes this example worth having. It is
+    the only content of a link, so its alt is the link's entire accessible
+    name. A repair layer that clears every filename alt on the reasoning that
+    a filename carries no information turns a badly named link into an
+    unnamed one: a 1.1.1 finding the client could live with becomes a 2.4.4
+    and 4.1.2 finding that stops the control working. That is the repair
+    making the site worse, silently, and rules/03-filename-alt.js is written
+    the way it is because of it.
+  -->
+</head>
+<body>
+  <main>
+    <h1>Lookbook</h1>
+
+    <img src="dsc_0043.jpg" alt="DSC_0043.jpg" width="200" height="120">
+
+    <a href="/collections/autumn">
+      <img src="hero-final-2.png" alt="hero-final-2.png" width="200" height="120">
+    </a>
+
+    <!-- Real prose. It must survive untouched, filename shaped or not. -->
+    <img src="team.jpg" alt="The studio team on the stairs at the summer party" width="200" height="120">
+  </main>
+</body>
+</html>
