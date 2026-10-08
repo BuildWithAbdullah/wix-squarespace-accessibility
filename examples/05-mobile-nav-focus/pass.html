@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Mobile overlay that manages focus</title>
+  <!--
+    The corrected page. Three behaviours, and all three are needed: any two
+    of them still leave a keyboard user stranded.
+
+    Focus moves into the overlay when it opens, so the next Tab is inside the
+    menu rather than somewhere behind it. Focus is kept inside while it is
+    open, because an overlay covering the page while the page is still
+    tabbable is a trap that looks like working navigation. And Escape closes
+    it and returns focus to the toggle, so there is a way out that does not
+    depend on finding the close control by touch.
+
+    rules/05-mobile-nav-focus.js reaches this same state from outside, by
+    watching the toggle's own state rather than intercepting its click. It
+    watches with a MutationObserver scoped to the attributes that carry the
+    state. It does not poll, and tools/verify.mjs fails the build if any rule
+    in this repository ever does again.
+  -->
+  <style>
+    .header-menu { display: none; }
+    body.header--menu-open .header-menu { display: block; }
+  </style>
+</head>
+<body>
+  <header>
+    <button class="header-burger-btn" aria-expanded="false" aria-label="Open menu">Menu</button>
+  </header>
+
+  <nav class="header-menu" aria-label="Main">
+    <a href="/shop">Shop</a>
+    <a href="/journal">Journal</a>
+    <a href="/contact">Contact</a>
+  </nav>
+
+  <main id="content" tabindex="-1">
+    <h1>Autumn</h1>
+    <a href="/collections/autumn">Behind the overlay</a>
+    <button type="button">And this</button>
+  </main>
+
+  <script>
+    var toggle = document.querySelector('.header-burger-btn');
+    var overlay = document.querySelector('.header-menu');
+    var FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+    function items() {
+      return Array.prototype.slice.call(overlay.querySelectorAll(FOCUSABLE));
+    }
+
+    function onKeydown(e) {
+      if (e.key === 'Escape') { e.preventDefault(); setOpen(false); toggle.focus(); return; }
+      if (e.key !== 'Tab') return;
+      var list = items();
+      if (!list.length) return;
+      var first = list[0], last = list[list.length - 1];
+      if (!overlay.contains(document.activeElement)) { e.preventDefault(); first.focus(); return; }
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+
+    function setOpen(open) {
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      document.body.classList.toggle('header--menu-open', open);
+      if (open) {
+        var list = items();
+        if (list.length) list[0].focus();
+        document.addEventListener('keydown', onKeydown, true);
+      } else {
+        document.removeEventListener('keydown', onKeydown, true);
+      }
+    }
+
+    toggle.addEventListener('click', function () {
+      setOpen(toggle.getAttribute('aria-expanded') !== 'true');
+    });
+  </script>
+</body>
+</html>

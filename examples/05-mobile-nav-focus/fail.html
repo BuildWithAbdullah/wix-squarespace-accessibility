@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Mobile overlay that does not manage focus</title>
+  <!--
+    What this reproduces, and it is the most reliable finding on any site
+    built on either platform.
+
+    The menu opens as a full screen overlay. Focus is never moved into it.
+    The page behind it stays fully tabbable. Escape does nothing. A keyboard
+    user opens the menu and then tabs through the entire page underneath,
+    invisibly, with no idea where they are.
+
+    No automated scanner reports any part of this, and the reason is worth
+    being precise about: there is nothing in this markup that distinguishes
+    it from an overlay that behaves correctly. The toggle has a role, a name
+    and aria-expanded. The overlay has links. Every attribute a scanner can
+    read is right. The failure only exists in what happens when a key is
+    pressed, so the only way to find it is to press the key, which is what
+    audit/behaviour.mjs does.
+  -->
+  <style>
+    .header-menu { display: none; }
+    body.header--menu-open .header-menu { display: block; }
+  </style>
+</head>
+<body>
+  <header>
+    <button class="header-burger-btn" aria-expanded="false" aria-label="Open menu">Menu</button>
+  </header>
+
+  <nav class="header-menu" aria-label="Main">
+    <a href="/shop">Shop</a>
+    <a href="/journal">Journal</a>
+    <a href="/contact">Contact</a>
+  </nav>
+
+  <main id="content" tabindex="-1">
+    <h1>Autumn</h1>
+    <a href="/collections/autumn">Behind the overlay, and still tabbable</a>
+    <button type="button">So is this</button>
+  </main>
+
+  <script>
+    // The platform's own toggle. It opens and closes the overlay and does
+    // nothing else, which is exactly the shipped behaviour.
+    var toggle = document.querySelector('.header-burger-btn');
+    toggle.addEventListener('click', function () {
+      var open = toggle.getAttribute('aria-expanded') === 'true';
+      toggle.setAttribute('aria-expanded', open ? 'false' : 'true');
+      document.body.classList.toggle('header--menu-open', !open);
+    });
+  </script>
+</body>
+</html>
