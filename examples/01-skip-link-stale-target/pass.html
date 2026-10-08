@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Working skip link</title>
+  <!--
+    The corrected page. Two things are true here and neither is optional.
+
+    The link resolves: its href names an id that exists on this page. And the
+    target can take focus: tabindex="-1" is there because several browsers
+    scroll to an anchor without moving focus, which produces the same silent
+    half-failure as a dead link.
+
+    The repair rule in rules/01-skip-link.js reaches this same state by
+    re-pointing an existing link whose target has gone, rather than seeing a
+    skip link and concluding there is nothing to do.
+  -->
+</head>
+<body>
+  <a class="a11y-skip-link" href="#page-section-7f2c">Skip to main content</a>
+
+  <header><nav><a href="/shop">Shop</a> <a href="/about">About</a></nav></header>
+
+  <main id="page-section-7f2c" tabindex="-1">
+    <h1>Collections</h1>
+    <p>The region the platform rendered after the transition.</p>
+  </main>
+</body>
+</html>

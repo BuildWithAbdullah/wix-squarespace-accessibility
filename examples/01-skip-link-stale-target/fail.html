@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Stale skip link</title>
+  <!--
+    What this reproduces.
+
+    A repair layer added a skip link on the first page view and pointed it at
+    the main region it found, giving that region the id a11y-main. The site
+    then navigated without a reload, which is how both platforms work. The
+    body survived, so the skip link survived with it. The main region did not:
+    the platform replaced it with a new element carrying its own id.
+
+    The link is still the first thing in the tab order. It still reads "Skip
+    to main content". Pressing Enter does nothing at all, and nothing about
+    the page suggests that, which is why this is worse than having no skip
+    link. A missing skip link is a finding anyone can see. A dead one looks
+    like a passing result.
+  -->
+</head>
+<body>
+  <a class="a11y-skip-link" href="#a11y-main">Skip to main content</a>
+
+  <header><nav><a href="/shop">Shop</a> <a href="/about">About</a></nav></header>
+
+  <main id="page-section-7f2c">
+    <h1>Collections</h1>
+    <p>The region the platform rendered after the transition.</p>
+  </main>
+</body>
+</html>
