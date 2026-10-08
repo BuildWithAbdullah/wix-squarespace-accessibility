@@ -160,7 +160,7 @@ conclusion, is in
 ```bash
 npm install
 npm test          # 115 tests across 6 suites
-npm run verify    # 328 repository assertions
+npm run verify    # 327 repository assertions
 ```
 
 Nothing is asserted here that is not checked. `npm test` drives a real browser
@@ -182,7 +182,7 @@ file to change in the same commit.
 
 ```
 115 of 115 tests passed across 6 suites.
-328 of 328 repository assertions passed.
+327 of 327 repository assertions passed.
 ```
 
 The generated files are checked too: `dist/a11y-bundle.js` against its sources,
