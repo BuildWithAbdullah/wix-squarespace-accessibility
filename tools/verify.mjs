@@ -234,12 +234,15 @@ for (const pair of PAIRS) {
    it is identical on every supported Node version. What this file checks is
    that the mechanism is still wired up: that the README quotes a number, and
    that the runner is the thing enforcing it. */
-ok(/\d+\s+tests/.test(read(path.join(ROOT, 'README.md'))), 'the README quotes a test count');
+const quotedTests = [...read(path.join(ROOT, 'README.md')).matchAll(/(\d+)\s+tests/g)].map((m) => Number(m[1]));
+ok(quotedTests.length >= 1, 'the README quotes a test count');
+ok(new Set(quotedTests).size === 1,
+  'every test count in the README agrees, found: ' + quotedTests.join(', '));
 
 const runner = read(path.join(ROOT, 'tools/run-tests.mjs'));
 ok(/from 'node:test'/.test(runner), 'the runner uses the node:test API rather than parsing output');
 ok(!/--test-reporter/.test(runner), 'the runner does not depend on a reporter');
-ok(/README claims/.test(runner), 'the runner compares its total against the README');
+ok(/does not state the run exactly/.test(runner), 'the runner compares its total against the README');
 
 for (const file of RUNNER_FILES) {
   ok(read(file).includes('import'), path.relative(ROOT, file) + ' is a real suite');
@@ -248,22 +251,36 @@ ok(RUNNER_FILES.length >= 6, 'every suite is in the runner list');
 
 /* ------------------------------------------------- the self-checking count */
 
-const quoted = readme.match(/(\d+)\s+repository assertions/);
-ok(!!quoted, 'the README quotes an assertion count');
+/* The two places the README states this number, matched exactly rather than
+   by a loose pattern.
 
-if (quoted) {
-  /* This comparison is itself an assertion, so the total it is compared
-     against includes it. Counting it before the check is deliberate: the
-     number in the README is the number this file reports, inclusive. */
-  const claimed = Number(quoted[1]);
-  passed++;
-  const total = passed + failures.length;
-  if (claimed !== total) {
-    failures.push('the README claims ' + claimed + ' repository assertions and this run made ' + total);
-  }
+   Both earlier attempts at this check were wrong in the same way. The first
+   read only the first occurrence. The second matched /(\d+) repository
+   assertions/ and so read the trailing number of "325 of 327 repository
+   assertions passed", which agreed with the other copy while the line itself
+   was nonsense. A self checking number that is checked by a pattern loose
+   enough to match a broken line is not checked at all, so both copies are now
+   matched as whole strings against the total this run produced. */
+const invocationLine = (n) => 'npm run verify    # ' + n + ' repository assertions';
+const outputLine = (n) => n + ' of ' + n + ' repository assertions passed.';
+
+ok(/npm run verify {4}# \d+ repository assertions/.test(readme),
+  'the README states the assertion count in the invocation');
+ok(/^\d+ of \d+ repository assertions passed\.$/m.test(readme),
+  'the README states the assertion count in the sample output');
+
+/* Counted before the comparison, so the number in the README is the number
+   this file reports, inclusive of the comparison itself. */
+passed += 2;
+const total = passed + failures.length;
+
+if (!readme.includes(invocationLine(total))) {
+  failures.push('the README invocation line does not read exactly: ' + invocationLine(total));
+}
+if (!readme.includes(outputLine(total))) {
+  failures.push('the README sample output does not read exactly: ' + outputLine(total));
 }
 
-const total = passed + failures.length;
 if (failures.length) {
   console.error('\n' + failures.length + ' of ' + total + ' assertions failed:\n');
   failures.forEach((f) => console.error('  not ok  ' + f));

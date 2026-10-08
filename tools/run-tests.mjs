@@ -84,13 +84,15 @@ if (RUN_DIRECTLY) {
 
   if (checkCount) {
     const readme = readFileSync(path.join(ROOT, 'README.md'), 'utf8');
-    const quoted = readme.match(/(\d+)\s+tests/);
-    if (!quoted) {
-      process.stdout.write('The README does not quote a test count.\n');
-      process.exit(1);
-    }
-    if (Number(quoted[1]) !== total) {
-      process.stdout.write('The README claims ' + quoted[1] + ' tests and this run had ' + total + '.\n');
+    /* Both places the README states the number, matched as whole strings.
+       A loose pattern here read the trailing number of "325 of 327 ...
+       passed" and agreed with itself while the line was nonsense. */
+    const invocation = 'npm test          # ' + total + ' tests across ' + TEST_FILES.length + ' suites';
+    const output = total + ' of ' + total + ' tests passed across ' + TEST_FILES.length + ' suites.';
+    const missing = [invocation, output].filter((line) => !readme.includes(line));
+    if (missing.length) {
+      process.stdout.write('The README does not state the run exactly. Expected these lines:\n');
+      missing.forEach((line) => process.stdout.write('  ' + line + '\n'));
       process.exit(1);
     }
     process.stdout.write('The README count matches.\n');
