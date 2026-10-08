@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Announcement bar close that works</title>
+  <!--
+    The corrected page. A real button, named, reachable, and operable by
+    keyboard because that is what a button already is.
+
+    Worth saying plainly: on a live Squarespace site you cannot make this
+    change. The announcement bar markup is generated and there is no setting
+    for it, which is precisely the category of finding injection exists for.
+    rules/08-announcement-close.js produces the same grade from outside, and
+    it adds key handling at the same moment it adds the role, because the two
+    are one promise rather than two improvements.
+  -->
+</head>
+<body>
+  <div class="sqs-announcement-bar">
+    <p>Free delivery on orders over fifty.</p>
+    <button type="button" class="sqs-announcement-bar-close" data-a11y-announcement-close
+            aria-label="Close announcement"></button>
+  </div>
+
+  <main><h1>Shop</h1></main>
+
+  <script>
+    var close = document.querySelector('.sqs-announcement-bar-close');
+    close.addEventListener('click', function () {
+      document.querySelector('.sqs-announcement-bar').hidden = true;
+    });
+  </script>
+</body>
+</html>

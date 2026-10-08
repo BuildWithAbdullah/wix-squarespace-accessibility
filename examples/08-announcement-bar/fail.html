@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Announcement bar close</title>
+  <!--
+    What this reproduces.
+
+    The Squarespace announcement bar close control: a div with a click
+    handler, no name, no role and no tab stop.
+
+    It gets its own rule and its own example because of where it sits rather
+    than because the defect is unusual. It is first in the tab order, on
+    every page of the site, and it reappears after every navigation. A
+    keyboard user meets it before they meet anything else, cannot dismiss the
+    bar, and tabs past a silent unnamed something at the top of every page
+    for the length of their visit.
+  -->
+</head>
+<body>
+  <div class="sqs-announcement-bar">
+    <p>Free delivery on orders over fifty.</p>
+    <div class="sqs-announcement-bar-close" data-a11y-announcement-close></div>
+  </div>
+
+  <main><h1>Shop</h1></main>
+
+  <script>
+    var close = document.querySelector('.sqs-announcement-bar-close');
+    close.addEventListener('click', function () {
+      document.querySelector('.sqs-announcement-bar').hidden = true;
+    });
+  </script>
+</body>
+</html>
