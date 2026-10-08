@@ -75,8 +75,9 @@ once will not run again on the next page. This is what the
 **The mobile overlay navigation.** The most reliable finding on any
 Squarespace site. The menu opens as a full-screen overlay, focus is never moved
 into it, the page behind stays tabbable, and `Escape` does nothing. It is a
-textbook 2.1.2 failure and no scanner reports it. The footer injection includes
-a fix.
+textbook 2.1.2 failure and no scanner reports it. `rules/05-mobile-nav-focus.js`
+repairs it, and `examples/05-mobile-nav-focus/` proves the repair by opening the
+menu and pressing keys.
 
 **Summary and archive blocks.** Every item links with the same "Read More"
 text. A screen reader user listing links hears it repeated with no way to tell
