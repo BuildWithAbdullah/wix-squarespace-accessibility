@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Unnamed embeds</title>
+  <!--
+    What this reproduces.
+
+    Maps, booking widgets and video players arrive as iframes from the embed
+    builder with no title, so each is announced only as "frame".
+
+    The second one is the case the old selector got wrong. It carries
+    title="", which iframe:not([title]) skips, because the attribute is
+    present. An empty title is exactly as useless as a missing one and is
+    more common, since several embed builders emit the attribute and leave it
+    blank. The audit and the rule both ask whether the frame has a name, not
+    whether it has an attribute.
+  -->
+</head>
+<body>
+  <main>
+    <h1>Visit</h1>
+    <iframe src="https://maps.example/embed?q=studio" width="300" height="200"></iframe>
+    <iframe src="https://book.example/widget" title="" width="300" height="200"></iframe>
+
+    <!-- Already named. Nothing may add a second name to this. -->
+    <iframe src="https://video.example/player/7" title="Studio tour video" width="300" height="200"></iframe>
+  </main>
+</body>
+</html>

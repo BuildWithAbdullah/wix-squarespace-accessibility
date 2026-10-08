@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Named embeds</title>
+  <!--
+    The corrected page. Each frame says what it is before a user decides
+    whether to enter it.
+
+    The limit belongs next to the fix. Naming a frame makes it findable and
+    does nothing whatsoever about what is inside it. A booking widget with an
+    unlabelled date field stays unreachable, because no script on this origin
+    can read or modify a cross-origin document. That one is an escalation to
+    the vendor or a decision to change vendor, and it is the kind of finding
+    that belongs in a scoping conversation rather than in a backlog.
+  -->
+</head>
+<body>
+  <main>
+    <h1>Visit</h1>
+    <iframe src="https://maps.example/embed?q=studio" title="Map of the studio location" width="300" height="200"></iframe>
+    <iframe src="https://book.example/widget" title="Appointment booking" width="300" height="200"></iframe>
+    <iframe src="https://video.example/player/7" title="Studio tour video" width="300" height="200"></iframe>
+  </main>
+</body>
+</html>
