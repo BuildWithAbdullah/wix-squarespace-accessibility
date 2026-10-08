@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Lightbox controls that are controls</title>
+  <!--
+    The corrected page, and the correction is to use the element that already
+    does all of this.
+
+    A button is focusable, is announced as a button, fires on Enter and on
+    Space, and does the right thing with Space on keydown versus keyup
+    without anybody having to remember that distinction. Every line of
+    keyboard handling in rules/07-gallery-controls.js exists only because the
+    platform did not use a button and the markup cannot be changed.
+
+    Where the element can be changed, change the element. That is the whole
+    argument of this repository compressed into one example, and it is the
+    reason the repair rules are a last resort rather than a product.
+  -->
+</head>
+<body>
+  <main>
+    <h1>Gallery</h1>
+    <div class="lightbox">
+      <button type="button" class="lightbox-close" aria-label="Close image viewer"></button>
+      <button type="button" class="gallery-arrow-left" aria-label="Previous image"></button>
+      <button type="button" class="gallery-arrow-right" aria-label="Next image"></button>
+    </div>
+  </main>
+
+  <script>
+    document.querySelectorAll('.lightbox button').forEach(function (el) {
+      el.addEventListener('click', function () { el.setAttribute('data-clicked', 'yes'); });
+    });
+  </script>
+</body>
+</html>

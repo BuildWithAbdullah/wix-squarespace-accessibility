@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Lightbox controls that are not controls</title>
+  <!--
+    What this reproduces, and the third one is the subtle case.
+
+    Gallery and lightbox controls on several templates are div elements with
+    a click handler and a button role bolted on. The first has a role and no
+    tab stop, so it announces itself as a button that nobody can reach. The
+    second has a tab stop and no name. The third has both a tab stop and a
+    name, and still does nothing when a keyboard user presses Enter or Space,
+    because somebody added the role and the tabindex and stopped there.
+
+    That third state is worse than the first, not better. An unreachable
+    control is a failure the user detects in a second and routes around. A
+    control that announces an interaction it does not have wastes their time
+    and makes them doubt their own keyboard. Promising a role is a promise to
+    implement it, and rules/07-gallery-controls.js therefore adds the role,
+    the tab stop and the key handling as one operation or not at all.
+  -->
+</head>
+<body>
+  <main>
+    <h1>Gallery</h1>
+    <div class="lightbox">
+      <div class="lightbox-close" role="button"></div>
+      <div class="gallery-arrow-left" role="button" tabindex="0"></div>
+      <div class="gallery-arrow-right" role="button" tabindex="0" aria-label="Next image"></div>
+    </div>
+  </main>
+
+  <script>
+    // The platform wires click and nothing else, on all three.
+    document.querySelectorAll('.lightbox div').forEach(function (el) {
+      el.addEventListener('click', function () { el.setAttribute('data-clicked', 'yes'); });
+    });
+  </script>
+</body>
+</html>
