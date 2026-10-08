@@ -1,4 +1,4 @@
-name: test
+name: verify
 
 on:
   push:
@@ -7,12 +7,80 @@ on:
   workflow_dispatch:
 
 jobs:
-  kit:
+  suite:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['22', '24']
+
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+
+      - run: npm install
+
+      # The suite drives a real browser, because the findings that matter most
+      # on these platforms cannot be seen by reading markup. An overlay that
+      # moves focus and one that does not are identical in the DOM.
+      - name: Unit, pair and catalogue suites
+        run: npm test
+
+      - name: Repository invariants
+        run: npm run verify
+
+      # The bundle is the only file most people who use this repository will
+      # ever read, because it is what gets pasted into the code injection box.
+      # A stale one would ship exactly the defects this suite exists to catch,
+      # while every other check stayed green.
+      - name: The bundle matches its sources
+        run: node tools/bundle.mjs --check
+
+      - name: The generated documents match the catalogue
+        run: |
+          node tools/catalogue-doc.mjs --check
+          node tools/examples-doc.mjs --check
+
+  engines:
+    # The declared engines floor is the version Puppeteer itself declares,
+    # read from the installed dependency tree rather than picked as a round
+    # number. This job installs on exactly that version with --engine-strict,
+    # so a floor the package cannot actually install on is a build failure
+    # rather than a line in a file nobody runs.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22.12.0'
+      - run: npm install --engine-strict
+      - run: npm test
+      - run: npm run verify
+
+  syntax:
+    # Every shipped script parsed on its own, including the bundle. The step
+    # fails if it finds nothing to check: a lint whose glob matches no files
+    # exits 0 and reports green forever, including after somebody renames the
+    # directory it was pointed at, which is worse than having no lint because
+    # it looks like coverage.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
           node-version: '22'
-      - run: npm install
-      - run: npm test
+      - name: Syntax-check every script
+        run: |
+          mapfile -t files < <(find lib rules shared audit tools dist test -type f \
+            \( -name '*.js' -o -name '*.mjs' \) | sort)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No JavaScript found. This check would otherwise pass by checking nothing."
+            exit 1
+          fi
+          echo "Checking ${#files[@]} file(s) with $(node --version)"
+          for f in "${files[@]}"; do
+            echo "  $f"
+            node --check "$f"
+          done
